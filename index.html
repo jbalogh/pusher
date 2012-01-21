@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Push</title>
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <style>
+      #push-form { display: none; }
+      #perm-form { display: none; }
+    </style>
+    <script>
+$(function() {
+  var name;
+  var canPush = navigator.mozPush;
+  $('#canpush').text(canPush ? 'Your device is push-enabled.' :
+                               'Your device cannot push.');
+  $('#name-form').submit(function(e) {
+    e.preventDefault();
+    name = $('#name').val();
+    $('#name-form').hide();
+    $('#push-form').show();
+
+    if (navigator.mozPush) {
+      navigator.mozPush.requestPermission(function(url) {
+        $.post('/queue', {user: name, queue: url});
+        var e = $('#canpush');
+        e.text(e.text() + ' PUSH');
+      });
+    }
+  });
+
+  $('#push-form').submit(function(e) {
+    e.preventDefault();
+    $.post('/message', {user: name, message: $('#push').val()});
+    $('#push').val('');
+  });
+});
+    </script>
+  </head>
+  <body>
+    <h2>Push Notifications</h2>
+    <p><em id="canpush"></em></p>
+    <form id="name-form">
+      <label>Enter your name: <input id="name"></label>
+      <input type="submit" value="Go">
+    </form>
+    <form id="push-form">
+      <label>Send a message: <input id="push"></label>
+      <input type="submit" value="Go">
+    </form>
+  </body>
+</html>
