@@ -16,7 +16,7 @@ def add_queue():
     user = request.form['user']
     queue = request.form['queue']
     db[user] = queue
-    print db
+    notify(queue, 'Welcome to PUSH!', 'So glad to have you, %.' % user)
     return ''
 
 
