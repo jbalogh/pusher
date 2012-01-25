@@ -5,8 +5,9 @@
     <title>Push</title>
     <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     <style>
-      #push-form { display: none; }
-      #perm-form { display: none; }
+      #push-form, #perm-form, #sent {
+        display: none;
+      }
     </style>
     <script>
 $(function() {
@@ -19,21 +20,28 @@ $(function() {
     name = $('#name').val();
     $('#name-form').hide();
     $('#push-form').show();
+    $('#push').focus()
 
     if (navigator.mozPush) {
       navigator.mozPush.requestPermission(function(url) {
         $.post('/queue', {user: name, queue: url});
         var e = $('#canpush');
-        e.text(e.text() + ' PUSH');
+        e.text(e.text() + ' PUSH: ' + url);
       });
     }
   });
 
   $('#push-form').submit(function(e) {
     e.preventDefault();
-    $.post('/message', {user: name, message: $('#push').val()});
+    $.post('/message', {user: name, message: $('#push').val()}, sent);
     $('#push').val('');
   });
+
+  function sent(d) {
+    console.log(d);
+    $('#sent').show().append('<li><b>' + d.title + '</b><br>' + d.message +
+      '<br>To: ' + '<em>' + d.names.join(', ') + '</em>');
+  }
 });
     </script>
   </head>
@@ -48,5 +56,7 @@ $(function() {
       <label>Send a message: <input id="push"></label>
       <input type="submit" value="Go">
     </form>
+    <ul id="sent">
+    </ul>
   </body>
 </html>

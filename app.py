@@ -1,12 +1,12 @@
 import requests
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 db = {}
 
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def root():
     return open('index.html').read()
 
@@ -16,7 +16,8 @@ def add_queue():
     user = request.form['user']
     queue = request.form['queue']
     db[user] = queue
-    notify(queue, 'Welcome to PUSH!', 'So glad to have you, %.' % user)
+    print db
+    notify(queue, 'Welcome to PUSH!', 'So glad to have you, %s.' % user)
     return ''
 
 
@@ -24,10 +25,13 @@ def add_queue():
 def send_message():
     name = request.form['user']
     message = request.form['message']
+    title = 'Message from %s' % name
+    names = []
     for user, queue in db.items():
         if name != user:
-            notify(queue, 'Message from %s' % name, message)
-    return ''
+            notify(queue, title, message)
+            names.append(user)
+    return jsonify(title=title, message=message, names=names)
 
 
 def notify(queue, title, text):
